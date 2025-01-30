@@ -13,14 +13,16 @@ router.put(
   "/",
   authenticate,
   upload.single("profile"),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const image = await cloudinary.uploader.upload(req.file.path);
       console.log(image);
-
       res.json({ message: "My profile updated" });
+      
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      next(err); // go to errHandler function (middlewares)
+
     } finally {
       if (req.file) {
         fs.unlinkSync(req.file.path);
