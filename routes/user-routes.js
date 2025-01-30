@@ -1,34 +1,11 @@
 const express = require("express");
 const authenticate = require("../middlewares/authenticate")
-const cloudinary = require("../configs/cloudinary")
-const fs = require("fs")
-const upload = require("../middlewares/upload")
 const router = express.Router();
+const upload = require("../middlewares/upload")
+const userControllers = require("../controllers/user-controllers")
 
-router.get("/", authenticate, (req, res) => {
-  res.json({ message: "Get my user profile" });
-});
+router.get("/", authenticate, userControllers.getProfile);
 
-router.put(
-  "/",
-  authenticate,
-  upload.single("profile"),
-  async (req, res, next) => {
-    try {
-      const image = await cloudinary.uploader.upload(req.file.path);
-      console.log(image);
-      res.json({ message: "My profile updated" });
-      
-    } catch (err) {
-      // console.log(err);
-      next(err); // go to errHandler function (middlewares)
-
-    } finally {
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
-    }
-  }
-);
+router.put("/", authenticate, upload.single("profile"), userControllers.updateProfile);
 
 module.exports = router;
